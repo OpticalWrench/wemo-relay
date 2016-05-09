@@ -29,6 +29,8 @@ ESP8266WebServer server(80);
 void clientWiFI() {
   // connect to local wifi network
 
+  WiFi.mode(WIFI_STA);
+
   WiFi.begin(wifiClient_ssid, wifiClient_password);
 
   #ifdef DEBUG
