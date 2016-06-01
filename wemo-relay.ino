@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include "FS.h"
@@ -8,7 +9,7 @@
 
 
 // comment/remove STATICIP definition to use DHCP and get IP address automatically
-#define STATICIP
+//#define STATICIP
 
 /*
 IMPORTANT: Make sure the SPIFFS size is set large enough to contain all the files in /data directory !!
@@ -35,7 +36,7 @@ void clientWiFI() {
 
   #ifdef DEBUG
     Serial.print("Connnecting to wifi network...");
-  #endif  
+  #endif
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
@@ -101,6 +102,19 @@ void setup() {
 
   clientWiFI(); // connect to local wifi network
 
+  // Set up mDNS responder:
+  // - first argument is the domain name, in this example
+  //   the fully-qualified domain name is "wemorelay1.local"
+  // - second argument is the IP address to advertise
+  //   we send our IP address on the WiFi network
+  if (!MDNS.begin("wemorelay1")) {
+    ;
+    #ifdef DEBUG
+      Serial.println("Error setting up MDNS responder!");
+    #endif
+
+  }
+
   if (!SPIFFS.begin()) {
     ;
     #ifdef DEBUG
@@ -116,7 +130,7 @@ void setup() {
   server.on("/pressthebutton", handleGarageButton);
   server.onNotFound ( handleEndPointNotFound ); // serve up file requests that do not have a specific endpoint programmed
   server.begin(); // Web server start
-  
+
   #ifdef DEBUG
     Serial.println("HTTP server started");
   #endif
