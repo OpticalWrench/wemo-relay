@@ -5,11 +5,11 @@
 #include "FS.h"
 
 // comment/remove DEBUG to disable serial info output
-//#define DEBUG
+#define DEBUG
 
 
 // comment/remove STATICIP definition to use DHCP and get IP address automatically
-//#define STATICIP
+#define STATICIP
 
 /*
 IMPORTANT: Make sure the SPIFFS size is set large enough to contain all the files in /data directory !!
@@ -18,10 +18,10 @@ IMPORTANT: Make sure the SPIFFS size is set large enough to contain all the file
 const char *softAP_ssid = "ssid";
 const char *softAP_password = "********";
 
-const char *wifiClient_ssid = "ssid";
-const char *wifiClient_password = "********";
+const char *wifiClient_ssid = "VV";
+const char *wifiClient_password = "LoopSoup";
 
-const char *myHostname = "wemo-relay";
+const char *myHostname = "wg1";
 char hostString[16] = {0};
 
 // Web server on port 80
@@ -29,8 +29,15 @@ ESP8266WebServer server(80);
 
 void clientWiFI() {
   // connect to local wifi network
-
+  
   WiFi.mode(WIFI_STA);
+
+  #ifdef STATICIP
+    IPAddress ip(192, 168, 1, 208);
+    IPAddress gateway(192, 168, 1, 1);
+    IPAddress subnet(255, 255, 255, 0);
+    WiFi.config(ip, gateway, subnet);
+  #endif
 
   WiFi.begin(wifiClient_ssid, wifiClient_password);
 
@@ -46,12 +53,7 @@ void clientWiFI() {
     #endif
   }
 
-  #ifdef STATICIP
-    IPAddress ip(192, 168, 1, 2);
-    IPAddress gateway(192, 168, 1, 1);
-    IPAddress subnet(255, 255, 255, 0);
-    WiFi.config(ip, gateway, subnet);
-  #endif
+
 
   #ifdef DEBUG
     Serial.println("");
@@ -59,6 +61,8 @@ void clientWiFI() {
     Serial.println(wifiClient_ssid);
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+    Serial.print("MAC address: ");
+    Serial.println( WiFi.macAddress() );
   #endif
 }
 
@@ -81,7 +85,8 @@ void accessPointWiFi() {
 
 }
 
-const int relayPin = D1;
+//const int relayPin = D1;
+const int relayPin = 5;
 const long buttonPressTime = 1000;  // simulate button press for one second
 
 void activateGarageDoorButton() {
